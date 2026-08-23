@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dashboard Bayaran - Affiliate</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Nunito for cute/clean look -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Nunito', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            50: '#fdf2f8', // ultra light pink
+                            100: '#fce7f3', // light pink
+                            300: '#f9a8d4', // pink
+                            500: '#ec4899', // dark pink
+                            700: '#be185d', // deep pink
+                            purple: '#a855f7', // purple
+                            dark: '#4a044e' // deep purple for text
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%); min-height: 100vh; color: #4a044e; }
+        .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); border-radius: 1.5rem; box-shadow: 0 10px 25px rgba(236, 72, 153, 0.15); border: 2px solid rgba(255,255,255,0.8); }
+        .btn-primary { background: linear-gradient(to right, #ec4899, #a855f7); color: white; transition: all 0.3s ease; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(168, 85, 247, 0.3); }
+        .hide { display: none !important; }
+        /* iOS friendly padding */
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+    </style>
+</head>
+<body class="pb-safe antialiased">
+
+    <!-- Header & Language Toggle -->
+    <div class="p-4 flex justify-between items-center max-w-4xl mx-auto">
+        <h1 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-brand-purple">
+            <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>AffiliatePay
+        </h1>
+        <div class="flex items-center gap-3">
+            <button id="langToggle" class="bg-white/70 px-4 py-2 rounded-full shadow-sm text-sm font-bold text-brand-purple hover:bg-white transition">
+                EN / MS
+            </button>
+            <button id="btnLogout" class="hide bg-brand-100 text-brand-500 px-4 py-2 rounded-full shadow-sm text-sm font-bold hover:bg-brand-300 hover:text-white transition">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-4xl mx-auto p-4 mb-10">
+
+        <!-- 1. AUTHENTICATION VIEW -->
+        <section id="view-auth" class="glass-card p-8 max-w-md mx-auto mt-10">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold mb-2" data-i18n="auth_title">Log Masuk / Daftar</h2>
+                <p class="text-brand-500 text-sm" data-i18n="auth_subtitle">Sertai program affiliate kami!</p>
+            </div>
+            
+            <form id="authForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold mb-1" data-i18n="email">E-mel</label>
+                    <input type="email" id="authEmail" required class="w-full px-4 py-3 rounded-xl border-2 border-brand-100 focus:outline-none focus:border-brand-300 bg-white/50">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1" data-i18n="password">Kata Laluan</label>
+                    <input type="password" id="authPassword" required class="w-full px-4 py-3 rounded-xl border-2 border-brand-100 focus:outline-none focus:border-brand-300 bg-white/50">
+                </div>
+                <p id="authError" class="text-red-500 text-xs text-center font-bold"></p>
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" id="btnLogin" class="flex-1 btn-primary py-3 rounded-xl font-bold shadow-md" data-i18n="login">Log Masuk</button>
+                    <button type="button" id="btnRegister" class="flex-1 bg-white text-brand-500 border-2 border-brand-300 py-3 rounded-xl font-bold hover:bg-brand-50 transition" data-i18n="register">Daftar</button>
+                </div>
+                <p class="text-xs text-center text-gray-500 mt-4">*Daftar guna emel mula dgn 'admin' utk jadi Admin</p>
+            </form>
+        </section>
+
+
+        <!-- 2. AFFILIATE DASHBOARD VIEW -->
+        <section id="view-affiliate" class="hide space-y-6">
+            
+            <!-- User Info & Link -->
+            <div class="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <p class="text-sm text-brand-500 font-bold" data-i18n="welcome">Selamat Kembali,</p>
+                    <h3 id="affEmailDisplay" class="text-xl font-extrabold">user@email.com</h3>
+                    <p class="text-xs text-gray-500 mt-1">Affiliate ID: <span id="affIdDisplay" class="font-bold text-brand-purple">---</span></p>
+                </div>
+                <div class="bg-brand-50 p-3 rounded-xl border border-brand-100 w-full md:w-auto flex items-center gap-2">
+                    <input type="text" id="affLink" readonly class="bg-transparent text-sm font-semibold text-brand-700 w-full md:w-48 outline-none">
+                    <button id="btnCopyLink" class="bg-brand-300 text-white p-2 rounded-lg hover:bg-brand-500 transition">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Wallet Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="glass-card p-5 text-center">
+                    <div class="text-brand-purple text-2xl mb-1"><i class="fa-solid fa-wallet"></i></div>
+                    <p class="text-xs font-bold text-gray-500" data-i18n="wallet_balance">Baki Wallet (RM)</p>
+                    <p id="statBalance" class="text-2xl font-extrabold text-brand-500">0.00</p>
+                </div>
+                <div class="glass-card p-5 text-center">
+                    <div class="text-brand-300 text-2xl mb-1"><i class="fa-solid fa-chart-line"></i></div>
+                    <p class="text-xs font-bold text-gray-500" data-i18n="total_sales">Jumlah Jualan (RM)</p>
+                    <p id="statSales" class="text-xl font-extrabold">0.00</p>
+                </div>
+                <div class="glass-card p-5 text-center">
+                    <div class="text-green-400 text-2xl mb-1"><i class="fa-solid fa-money-bill-wave"></i></div>
+                    <p class="text-xs font-bold text-gray-500" data-i18n="total_commission">Total Komisen (RM)</p>
+                    <p id="statComm" class="text-xl font-extrabold">0.00</p>
+                </div>
+                <div class="glass-card p-5 text-center">
+                    <div class="text-orange-400 text-2xl mb-1"><i class="fa-solid fa-hourglass-half"></i></div>
+                    <p class="text-xs font-bold text-gray-500" data-i18n="pending_commission">Komisen Pending</p>
+                    <p id="statPending" class="text-xl font-extrabold">0.00</p>
+                </div>
+            </div>
+
+            <!-- Tools: Withdraw & Simulate (For Testing) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Withdrawal Form -->
+                <div class="glass-card p-6">
+                    <h3 class="font-bold text-lg mb-4" data-i18n="request_withdraw">Mohon Pengeluaran (Withdraw)</h3>
+                    <form id="withdrawForm" class="flex gap-2">
+                        <input type="number" id="withdrawAmount" placeholder="RM" required min="10" step="0.01" class="flex-1 px-4 py-2 rounded-xl border-2 border-brand-100 focus:outline-none focus:border-brand-300 bg-white/50">
+                        <button type="submit" class="btn-primary px-6 py-2 rounded-xl font-bold shadow-md" data-i18n="submit">Mohon</button>
+                    </form>
+                    <p id="withdrawMsg" class="text-xs mt-2 font-bold"></p>
+                </div>
+                
+                <!-- Simulate Sale (For testing app functionality) -->
+                <div class="glass-card p-6 border-dashed border-2 border-brand-300">
+                    <h3 class="font-bold text-lg mb-2 text-brand-purple"><i class="fa-solid fa-flask mr-2"></i>Test Sistem</h3>
+                    <p class="text-xs mb-3">Klik untuk simulasikan jualan RM100 (Komisen RM20) masuk ke wallet anda.</p>
+                    <button id="btnSimulateSale" class="w-full bg-white text-brand-purple border-2 border-brand-purple py-2 rounded-xl font-bold hover:bg-brand-50">
+                        + Tambah Jualan Palsu
+                    </button>
+                </div>
+            </div>
+
+            <!-- History -->
+            <div class="glass-card p-6">
+                <h3 class="font-bold text-lg mb-4" data-i18n="history_withdraw">Sejarah Pengeluaran</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead>
+                            <tr class="border-b border-brand-100 text-brand-700">
+                                <th class="pb-2" data-i18n="date">Tarikh</th>
+                                <th class="pb-2" data-i18n="amount">Jumlah (RM)</th>
+                                <th class="pb-2" data-i18n="status">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <!-- Rows injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- 3. ADMIN DASHBOARD VIEW -->
+        <section id="view-admin" class="hide space-y-6">
+            <div class="glass-card p-6 bg-gradient-to-r from-brand-700 to-brand-purple text-white">
+                <h2 class="text-2xl font-extrabold"><i class="fa-solid fa-shield-halved mr-2"></i>Admin Panel</h2>
+                <p class="text-sm text-brand-100">Uruskan pengeluaran dan wallet affiliate.</p>
+            </div>
+
+            <!-- Admin Pending Withdrawals -->
+            <div class="glass-card p-6">
+                <h3 class="font-bold text-lg mb-4 text-brand-purple">Pengeluaran Menunggu (Pending)</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead>
+                            <tr class="border-b border-brand-100 text-brand-700">
+                                <th class="pb-2">E-mel Affiliate</th>
+                                <th class="pb-2">Jumlah (RM)</th>
+                                <th class="pb-2">Tarikh</th>
+                                <th class="pb-2">Tindakan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminWithdrawalsBody">
+                            <!-- Rows injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FIREBASE & APP LOGIC -->
+    <script type="module">
+        // Import Firebase SDK (v10)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, set, get, update, onValue, push, query, orderByChild, equalTo, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // Firebase Configuration (From User Prompt)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCICPwXevB5ifajJL9_MSxr3a-g_Q64TdY",
+            authDomain: "ekbrainbox-512fd.firebaseapp.com",
+            databaseURL: "https://ekbrainbox-512fd-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "ekbrainbox-512fd",
+            storageBucket: "ekbrainbox-512fd.firebasestorage.app",
+            messagingSenderId: "872404987845",
+            appId: "1:872404987845:web:36a8c4b0062c52e39c65ac"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        // --- GLOBAL VARIABLES ---
+        let currentUser = null;
+        let currentUserRole = 'affiliate';
+        let currentLang = 'ms';
+
+        // --- TRANSLATION DICTIONARY ---
+        const translations = {
+            ms: {
+                auth_title: "Log Masuk / Daftar",
+                auth_subtitle: "Sertai program affiliate kami!",
+                email: "E-mel",
+                password: "Kata Laluan",
+                login: "Log Masuk",
+                register: "Daftar",
+                welcome: "Selamat Kembali,",
+                wallet_balance: "Baki Wallet (RM)",
+                total_sales: "Jumlah Jualan (RM)",
+                total_commission: "Total Komisen (RM)",
+                pending_commission: "Komisen Pending",
+                request_withdraw: "Mohon Pengeluaran (Withdraw)",
+                submit: "Mohon",
+                history_withdraw: "Sejarah Pengeluaran",
+                date: "Tarikh",
+                amount: "Jumlah (RM)",
+                status: "Status",
+                pending: "Menunggu",
+                approved: "Lulus",
+                rejected: "Ditolak",
+                err_login: "Sila semak emel/kata laluan.",
+                err_balance: "Baki tidak mencukupi!",
+                success_withdraw: "Permohonan dihantar!"
+            },
+            en: {
+                auth_title: "Login / Register",
+                auth_subtitle: "Join our affiliate program!",
+                email: "Email",
+                password: "Password",
+                login: "Login",
+                register: "Register",
+                welcome: "Welcome back,",
+                wallet_balance: "Wallet Balance (RM)",
+                total_sales: "Total Sales (RM)",
+                total_commission: "Total Commission (RM)",
+                pending_commission: "Pending Commission",
+                request_withdraw: "Request Withdrawal",
+                submit: "Submit",
+                history_withdraw: "Withdrawal History",
+                date: "Date",
+                amount: "Amount (RM)",
+                status: "Status",
+                pending: "Pending",
+                approved: "Approved",
+                rejected: "Rejected",
+                err_login: "Please check email/password.",
+                err_balance: "Insufficient balance!",
+                success_withdraw: "Request submitted!"
+            }
+        };
+
+        // --- DOM ELEMENTS ---
+        const views = {
+            auth: document.getElementById('view-auth'),
+            affiliate: document.getElementById('view-affiliate'),
+            admin: document.getElementById('view-admin')
+        };
+        const btnLogout = document.getElementById('btnLogout');
+        const langToggle = document.getElementById('langToggle');
+
+        // --- LANGUAGE TOGGLE LOGIC ---
+        langToggle.addEventListener('click', () => {
+            currentLang = currentLang === 'ms' ? 'en' : 'ms';
+            updateLanguage();
+        });
+
+        function updateLanguage() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang][key]) {
+                    el.innerText = translations[currentLang][key];
+                }
+            });
+        }
+
+        // --- VIEW ROUTER ---
+        function showView(viewName) {
+            Object.values(views).forEach(v => v.classList.add('hide'));
+            views[viewName].classList.remove('hide');
+            if (viewName === 'auth') {
+                btnLogout.classList.add('hide');
+            } else {
+                btnLogout.classList.remove('hide');
+            }
+        }
+
+        // --- AUTHENTICATION LOGIC ---
+        document.getElementById('authForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('authEmail').value;
+            const pass = document.getElementById('authPassword').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+                document.getElementById('authError').innerText = "";
+            } catch (error) {
+                document.getElementById('authError').innerText = translations[currentLang].err_login;
+            }
+        });
+
+        document.getElementById('btnRegister').addEventListener('click', async () => {
+            const email = document.getElementById('authEmail').value;
+            const pass = document.getElementById('authPassword').value;
+            if(!email || !pass) return alert("Isi E-mel dan Kata laluan!");
+            
+            try {
+                const userCred = await createUserWithEmailAndPassword(auth, email, pass);
+                const uid = userCred.user.uid;
+                
+                // Logic: If email starts with 'admin', make them admin automatically
+                const role = email.toLowerCase().startsWith('admin') ? 'admin' : 'affiliate';
+                const affId = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+                // 1. Create User Record
+                await set(ref(db, 'users/' + uid), {
+                    email: email,
+                    role: role,
+                    affiliateId: affId,
+                    createdAt: serverTimestamp()
+                });
+
+                // 2. Create Empty Wallet
+                await set(ref(db, 'wallets/' + uid), {
+                    balance: 0.00,
+                    totalSales: 0.00,
+                    totalCommission: 0.00,
+                    pendingCommission: 0.00
+                });
+
+                document.getElementById('authError').innerText = "";
+            } catch (error) {
+                document.getElementById('authError').innerText = error.message;
+            }
+        });
+
+        btnLogout.addEventListener('click', () => signOut(auth));
+
+        // --- AUTH STATE OBSERVER ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                // Fetch User Role
+                const userSnap = await get(ref(db, 'users/' + user.uid));
+                if (userSnap.exists()) {
+                    const userData = userSnap.val();
+                    currentUserRole = userData.role;
+                    
+                    if (currentUserRole === 'admin') {
+                        initAdminDashboard();
+                        showView('admin');
+                    } else {
+                        initAffiliateDashboard(userData);
+                        showView('affiliate');
+                    }
+                }
+            } else {
+                currentUser = null;
+                showView('auth');
+            }
+        });
+
+
+        // --- AFFILIATE DASHBOARD LOGIC ---
+        function initAffiliateDashboard(userData) {
+            document.getElementById('affEmailDisplay').innerText = userData.email;
+            document.getElementById('affIdDisplay').innerText = userData.affiliateId;
+            
+            // Generate Mock Affiliate Link
+            const baseUrl = window.location.origin + window.location.pathname;
+            document.getElementById('affLink').value = `${baseUrl}?ref=${userData.affiliateId}`;
+
+            // Listen to Wallet Data
+            onValue(ref(db, 'wallets/' + currentUser.uid), (snapshot) => {
+                if (snapshot.exists()) {
+                    const w = snapshot.val();
+                    document.getElementById('statBalance').innerText = parseFloat(w.balance).toFixed(2);
+                    document.getElementById('statSales').innerText = parseFloat(w.totalSales).toFixed(2);
+                    document.getElementById('statComm').innerText = parseFloat(w.totalCommission).toFixed(2);
+                    document.getElementById('statPending').innerText = parseFloat(w.pendingCommission).toFixed(2);
+                }
+            });
+
+            // Listen to Withdrawal History
+            const q = query(ref(db, 'withdrawals'), orderByChild('uid'), equalTo(currentUser.uid));
+            onValue(q, (snapshot) => {
+                const tbody = document.getElementById('historyTableBody');
+                tbody.innerHTML = "";
+                if (snapshot.exists()) {
+                    // Sort descending by putting in array first
+                    let dataArr = [];
+                    snapshot.forEach(child => { dataArr.push(child.val()); });
+                    dataArr.reverse().forEach(req => {
+                        let statusColor = req.status === 'pending' ? 'text-orange-500' : (req.status === 'approved' ? 'text-green-500' : 'text-red-500');
+                        let statusText = translations[currentLang][req.status] || req.status;
+                        let dateStr = new Date(req.timestamp).toLocaleDateString();
+                        
+                        tbody.innerHTML += `
+                            <tr class="border-b border-brand-50">
+                                <td class="py-3">${dateStr}</td>
+                                <td class="py-3 font-bold">RM ${parseFloat(req.amount).toFixed(2)}</td>
+                                <td class="py-3 font-bold ${statusColor}">${statusText}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-gray-400">Tiada rekod</td></tr>`;
+                }
+            });
+        }
+
+        // Copy Link Action
+        document.getElementById('btnCopyLink').addEventListener('click', () => {
+            const linkInput = document.getElementById('affLink');
+            linkInput.select();
+            document.execCommand('copy');
+            alert("Link berjaya disalin! (Link Copied!)");
+        });
+
+        // Request Withdrawal Action
+        document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msgEl = document.getElementById('withdrawMsg');
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            
+            // Validate Balance
+            const walletSnap = await get(ref(db, 'wallets/' + currentUser.uid));
+            const currentBalance = walletSnap.val().balance;
+
+            if (amount > currentBalance) {
+                msgEl.innerText = translations[currentLang].err_balance;
+                msgEl.className = "text-xs mt-2 font-bold text-red-500";
+                return;
+            }
+
+            // Create Request
+            const newReqRef = push(ref(db, 'withdrawals'));
+            await set(newReqRef, {
+                id: newReqRef.key,
+                uid: currentUser.uid,
+                email: currentUser.email,
+                amount: amount,
+                status: 'pending',
+                timestamp: Date.now()
+            });
+
+            document.getElementById('withdrawAmount').value = "";
+            msgEl.innerText = translations[currentLang].success_withdraw;
+            msgEl.className = "text-xs mt-2 font-bold text-green-500";
+            setTimeout(() => { msgEl.innerText = ""; }, 3000);
+        });
+
+        // SIMULATE SALE (Hanya untuk testing)
+        document.getElementById('btnSimulateSale').addEventListener('click', async () => {
+            if(!currentUser) return;
+            const walletRef = ref(db, 'wallets/' + currentUser.uid);
+            const snap = await get(walletRef);
+            if(snap.exists()){
+                let w = snap.val();
+                let saleAmount = 100.00;
+                let commission = 20.00; // 20% komisen contoh
+
+                await update(walletRef, {
+                    totalSales: w.totalSales + saleAmount,
+                    totalCommission: w.totalCommission + commission,
+                    balance: w.balance + commission
+                });
+                
+                // Tambah rekod transaksi
+                push(ref(db, 'transactions/' + currentUser.uid), {
+                    type: 'commission',
+                    amount: commission,
+                    desc: 'Jualan Produk Ebook (Test)',
+                    timestamp: Date.now()
+                });
+                
+                alert("Simulasi berjaya! RM20 ditambah ke wallet.");
+            }
+        });
+
+
+        // --- ADMIN DASHBOARD LOGIC ---
+        function initAdminDashboard() {
+            // Listen for ALL pending withdrawals
+            onValue(ref(db, 'withdrawals'), (snapshot) => {
+                const tbody = document.getElementById('adminWithdrawalsBody');
+                tbody.innerHTML = "";
+                
+                if (snapshot.exists()) {
+                    let hasPending = false;
+                    snapshot.forEach(childSnap => {
+                        const req = childSnap.val();
+                        if (req.status === 'pending') {
+                            hasPending = true;
+                            let dateStr = new Date(req.timestamp).toLocaleDateString();
+                            tbody.innerHTML += `
+                                <tr class="border-b border-brand-50">
+                                    <td class="py-3 text-brand-dark font-semibold">${req.email}</td>
+                                    <td class="py-3 font-bold">RM ${parseFloat(req.amount).toFixed(2)}</td>
+                                    <td class="py-3 text-xs">${dateStr}</td>
+                                    <td class="py-3 flex gap-2">
+                                        <button onclick="window.approveWithdrawal('${req.id}', '${req.uid}', ${req.amount})" class="bg-green-500 text-white px-3 py-1 rounded shadow hover:bg-green-600 text-xs font-bold"><i class="fa-solid fa-check"></i> Lulus</button>
+                                        <button onclick="window.rejectWithdrawal('${req.id}')" class="bg-red-500 text-white px-3 py-1 rounded shadow hover:bg-red-600 text-xs font-bold"><i class="fa-solid fa-xmark"></i> Tolak</button>
+                                    </td>
+                                </tr>
+                            `;
+                        }
+                    });
+                    
+                    if(!hasPending) tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-gray-400">Tiada permohonan baru.</td></tr>`;
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-gray-400">Tiada data.</td></tr>`;
+                }
+            });
+        }
+
+        // Global functions for Admin inline buttons
+        window.approveWithdrawal = async (reqId, uid, amount) => {
+            if(!confirm(`Luluskan pengeluaran RM${amount}? Baki wallet affiliate akan ditolak.`)) return;
+            
+            // 1. Get user wallet
+            const walletRef = ref(db, 'wallets/' + uid);
+            const wSnap = await get(walletRef);
+            if (wSnap.exists()) {
+                const currentBalance = wSnap.val().balance;
+                if (currentBalance >= amount) {
+                    // 2. Deduct Balance
+                    await update(walletRef, { balance: currentBalance - amount });
+                    // 3. Update Request Status
+                    await update(ref(db, 'withdrawals/' + reqId), { status: 'approved' });
+                    // 4. Record Transaction
+                    await push(ref(db, 'transactions/' + uid), {
+                        type: 'withdrawal',
+                        amount: amount,
+                        desc: 'Pengeluaran diluluskan',
+                        timestamp: Date.now()
+                    });
+                    alert("Berjaya diluluskan.");
+                } else {
+                    alert("Ralat: Baki affiliate tidak mencukupi!");
+                }
+            }
+        };
+
+        window.rejectWithdrawal = async (reqId) => {
+            if(confirm('Tolak permohonan ini? (Baki wallet tidak akan ditolak)')){
+                await update(ref(db, 'withdrawals/' + reqId), { status: 'rejected' });
+            }
+        };
+
+        // Init language on load
+        updateLanguage();
+
+    </script>
+</body>
+</html>
